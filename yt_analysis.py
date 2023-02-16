@@ -36,22 +36,27 @@ SolarMetalFractionByMass = 0.01295
 
 #Set sys argument to numberical argument 
 argvs = sys.argv
+print(sys.argv[3])
 
 #Data set
 number_min = int(argvs[1])
 number_max = int(argvs[2])
 
 #Plot type
-plot_switch = ''
-if sys.argv[3] == 1:
-    plot_switch = 'Slice'
-elif sys.argv[3] == 2:
-    plot_switch = 'Proj'
-elif sys.argv[3] == 3:
-    plot_switch = 'Phase'
-elif sys.argv[3] == 4:
-    plot_switch = 'Radial'
-print(plot_switch)
+plot_type = ''
+if int(sys.argv[3]) == 1:
+    plot_type = 'Slice'
+elif int(sys.argv[3]) == 2:
+    plot_type = 'Proj'
+elif int(sys.argv[3]) == 3:
+    plot_type = 'Phase'
+elif int(sys.argv[3]) == 4:
+    plot_type = 'Radial'
+else:
+    print('Invalid')
+
+
+#print(plot_switch)
 print(argvs[3])
 #Slice = int(argvs[3])
 #Proj = int(argvs[4])
@@ -123,7 +128,7 @@ for number in range(number_min, number_max+1):
     def _TotEnergy(field, data): return data["TotalEnergy"] * data["cell_mass"]
     ds.add_field(("gas", "TotEnergy"), function=_TotEnergy, sampling_type="cell", units="erg")
 
-    if plot_switch == 'Slice':
+    if plot_type == 'Slice':
         print("Input field list ")
         print("Input weight field (e.g. gas) ")
         field_weight = str(input())
