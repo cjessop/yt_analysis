@@ -36,7 +36,7 @@ SolarMetalFractionByMass = 0.01295
 
 #Set sys argument to numberical argument 
 argvs = sys.argv
-print(sys.argv[3])
+#print(sys.argv[3])
 
 #Data set
 number_min = int(argvs[1])
@@ -57,7 +57,7 @@ else:
 
 
 #print(plot_switch)
-print(argvs[3])
+#print(argvs[3])
 #Slice = int(argvs[3])
 #Proj = int(argvs[4])
 #Phase = int(argvs[5])
@@ -65,27 +65,28 @@ print(argvs[3])
 
 
 #Plot Functions
-def SlicePlot(field_list, center=(0.5, 0.5, 0.5), width=(2, "kpc")):
-    plot = yt.SlicePlot(ds, 2, field_list, center, width)
-    plot.save()
+#def SlicePlot(field_list, center=(0.5, 0.5, 0.5), width=(2, 'kpc')):
+#    plot = yt.SlicePlot(ds, 2, field_list, center, width)
+#    plot.save()
 
-    return 
+#    return 
 
-def ProjPlot(field_list, center=(0.5, 0.5, 0.5), width=(2, "kpc")):
-    plot = yt.ProjectionPlot(ds, 2, field_list, center, width, weight_field=("gas","density"))
-    plot.save()
+#def ProjPlot(field_list, center=(0.5, 0.5, 0.5), width=(2, "kpc")):
+#    plot = yt.ProjectionPlot(ds, 2, field_list, center, width, weight_field=("gas","density"))
+#    plot.save()
 
-    return
+#    return
 
 
-#work_dir = "./"
-for number in range(number_min, number_max+1):
-    number  = '%04d' % number
+work_dir = "./"
+for it_number in range(number_min, number_max+1):
+    number  = '%04d' % it_number
     fn = "DD" + number + "/output_" + number
 
 
     print(fn)
     ds = yt.load(fn)
+    all_data = ds.all_data()
     ds.print_stats()
     print(ds.current_redshift)
 
@@ -129,11 +130,50 @@ for number in range(number_min, number_max+1):
     ds.add_field(("gas", "TotEnergy"), function=_TotEnergy, sampling_type="cell", units="erg")
 
     if plot_type == 'Slice':
-        print("Input field list ")
-        print("Input weight field (e.g. gas) ")
-        field_weight = str(input())
-        print(field_weight)
-        print("Input field (e.g. Temperature) ")
-        field_plot = str(input())
-        print(field_plot)
-        SlicePlot((field_weight, field_plot))
+        print('input plot width in kpc ')
+        width = float(input('width = '))
+        print('input axes unit (mpc, kpc, pc, au...) ')
+        axes_unit = str(input('unit = '))
+        print('input centre as either as a field or as a coordinate ')
+        centre_point = input('input centre point ')
+        if centre_point == 'density':
+            centre_point = all_data.argmax("density")
+        elif centre_point == "Temperature":
+            centre_point = all_data.argmax("Temperature")
+        elif centre_point == "metallicity":
+            centre_point = all_data.argmax("Zmet")
+        else:
+            centre_point = eval(centre_point)
+
+        print(centre_point)
+
+#        centre_point = all_data.argmax("density")
+#        print(centre_point)
+#        axes_unit = 'kpc'
+#        width = (2.0, 'kpc')
+#        print("Input field list ")
+#        print("Input weight field (e.g. gas) ")
+#        field_weight = str(input())
+#        print(field_weight)
+#        print("Input field (e.g. Temperature) ")
+#        field_plot = str(input())
+#        print(field_plot)
+#        SlicePlot((field_weight, field_plot))
+        plot = yt.SlicePlot(ds, 'z', "Zmet", width = width, axes_unit=axes_unit, center=centre_point)
+        plot.annotate_grids()
+        plot.save("%s/Zmet_%04d.png" % (work_dir, it_number))
+
+        plot = yt.SlicePlot(ds, 'z', "Temperature", width = width, axes_unit=axes_unit, center=centre_point)
+        plot.set_log('Temperature', True)
+#        plot.set_zlabel(r'$10^{({\rm Temperature})}$')
+        plot.save("%s/Temperature_%04d.png" % (work_dir, it_number))
+
+        plot = yt.SlicePlot(ds, 'z', "Hydrogen_number_density", width = width, axes_unit=axes_unit, center=centre_point)
+        plot.set_log('Hydrogen_number_density', False)
+#        plot.set_zlabel(r'')
+        plot.save("%s/H number density_%04d.png" % (work_dir, it_number))
+
+        plot = yt.SlicePlot(ds, 'z', "y_H2O", width = width, axes_unit=axes_unit, center=centre_point)
+        plot.annotate_grids()
+        plot.save("%s/Water_Abundance_%04d.png" % (work_dir, it_number))
+
