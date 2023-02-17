@@ -1,0 +1,96 @@
+========================================================================
+make show-version
+========================================================================
+
+Git Branch   metal-dust-radiation
+Git Revision 547d7a8957980a37e58fd132fb197ffa6229d697
+
+========================================================================
+gmake show-config
+========================================================================
+
+   MACHINE: SCIAMA Intel
+   MACHINE-NAME: sciama-intel2
+
+   PARAMETER_MAX_SUBGRIDS  [max-subgrids-###]                : 100000
+   PARAMETER_MAX_BARYONS  [max-baryons-###]                  : 90
+   PARAMETER_MAX_TASKS_PER_NODE  [max-tasks-per-node-###]    : 8
+   PARAMETER_MEMORY_POOL_SIZE  [memory-pool-###]             : 100000
+
+   CONFIG_PRECISION  [precision-{32,64}]                     : 64
+   CONFIG_PARTICLES  [particles-{32,64,128}]                 : 64
+   CONFIG_INTEGERS  [integers-{32,64}]                       : 64
+   CONFIG_PARTICLE_IDS  [particle-id-{32,64}]                : 64
+   CONFIG_INITS  [inits-{32,64}]                             : 64
+   CONFIG_IO  [io-{32,64}]                                   : 32
+   CONFIG_USE_MPI  [use-mpi-{yes,no}]                        : yes
+   CONFIG_TASKMAP  [taskmap-{yes,no}]                        : no
+   CONFIG_PACKED_AMR  [packed-amr-{yes,no}]                  : yes
+   CONFIG_PACKED_MEM  [packed-mem-{yes,no}]                  : no
+   CONFIG_LCAPERF  [lcaperf-{yes,no}]                        : no
+   CONFIG_PAPI  [papi-{yes,no}]                              : no
+   CONFIG_PYTHON  [python-{yes,no}]                          : no
+   CONFIG_NEW_PROBLEM_TYPES  [new-problem-types-{yes,no}]    : no
+   CONFIG_ECUDA  [cuda-{yes,no}]                             : no
+   CONFIG_OOC_BOUNDARY  [ooc-boundary-{yes,no}]              : no
+   CONFIG_ACCELERATION_BOUNDARY  [acceleration-boundary-{yes,no}]              : yes
+   CONFIG_OPT  [opt-{warn,debug,cudadebug,high,aggressive}]  : aggressive
+   CONFIG_TESTING  [testing-{yes,no}]                        : no
+   CONFIG_PHOTON  [photon-{yes,no}]                          : yes
+   CONFIG_HYPRE  [hypre-{yes,no}]                            : no
+   CONFIG_EMISSIVITY  [emissivity-{yes,no}]                  : no
+   CONFIG_USE_HDF4  [use-hdf4-{yes,no}]                      : no
+   CONFIG_NEW_GRID_IO  [newgridio-{yes,no}]                  : yes
+   CONFIG_BITWISE_IDENTICALITY  [bitwise-{yes,no}]           : no
+   CONFIG_FAST_SIB  [fastsib-{yes,no}]                       : yes
+   CONFIG_GRAVITY_4S  [gravity-4s-{yes,no}]                  : no
+   CONFIG_ENZO_PERFORMANCE  [enzo-performance-{yes,no}]      : yes
+   CONFIG_GRACKLE  [grackle-{yes,no}]                        : yes
+   CONFIG_LOG2ALLOC  [log2alloc-{yes,no}]                    : no
+
+========================================================================
+gmake show-flags
+========================================================================
+
+CPP = /opt/apps/compilers/gcc/5.4.0/intel64/bin/cpp
+CC  = /opt/apps/mpi/openmpi/4.0.1/intel64/intel_2019.2/bin/mpicc
+which: invalid option -- 'D'
+which: invalid option -- 'M'
+which: invalid option -- 'P'
+which: invalid option -- 'I'
+which: invalid option -- 'C'
+which: invalid option -- 'H'
+which: invalid option -- '_'
+which: invalid option -- 'I'
+which: invalid option -- 'G'
+which: invalid option -- 'N'
+which: invalid option -- 'O'
+which: invalid option -- 'R'
+which: invalid option -- 'E'
+which: invalid option -- '_'
+which: invalid option -- 'C'
+which: invalid option -- 'X'
+which: invalid option -- 'X'
+which: invalid option -- '_'
+which: invalid option -- 'S'
+which: invalid option -- 'E'
+which: invalid option -- 'E'
+which: invalid option -- 'K'
+CXX = /opt/apps/mpi/openmpi/4.0.1/intel64/intel_2019.2/bin/mpicxx
+FC  = /opt/apps/mpi/openmpi/4.0.1/intel64/intel_2019.2/bin/mpifort
+F90 = /opt/apps/mpi/openmpi/4.0.1/intel64/intel_2019.2/bin/mpifort
+LD  = /opt/apps/mpi/openmpi/4.0.1/intel64/intel_2019.2/bin/mpicxx
+
+DEFINES = -DLINUX -DH5_USE_16_API  -D__max_subgrids=100000 -D__max_baryons=90 -D__max_cpu_per_node=8 -D__memory_pool_size=100000 -DINITS64 -DLARGE_INTS -DCONFIG_PINT_8 -DIO_32    -DUSE_MPI   -DCONFIG_PFLOAT_8 -DCONFIG_BFLOAT_8  -DUSE_HDF5_GROUPS   -DTRANSFER   -DNEW_GRID_IO -DFAST_SIB      -DENZO_PERFORMANCE  -DUSE_GRACKLE  -DSAB
+
+INCLUDES =        -I/users/cjessop/grackle-metal-dust/lib/include    -I.
+
+CPPFLAGS =  -P -traditional
+CFLAGS   = -mp1 -prec_div -fp_port -align -O3 -ipo -mcmodel=medium -mkl -lgsl
+CXXFLAGS = -mp1 -prec_div -fp_port -align -O3 -ipo -mcmodel=medium -mkl -lgsl
+FFLAGS   =  -O3 -ipo -mcmodel=medium -mkl -lgsl
+F90FLAGS = -mp1 -prec_div -fp_port -align -save -zero -O3 -ipo -mcmodel=medium -mkl -lgsl
+LDFLAGS  =   -lifcore -lifport -lpthread -ldl -O3 -ipo -mcmodel=medium -mkl -lgsl
+
+LIBS     = -lhdf5 -lm         -L/users/cjessop/grackle-metal-dust/lib/lib -lgrackle
+
