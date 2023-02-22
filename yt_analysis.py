@@ -1,8 +1,8 @@
 print("*********  A python script to perform analaysis on an Enzo dataset using yt  *********")
 print(" ")
-print("Usage: Run the script as python yt_analysis.py arg1 arg2 arg3")
+print("Usage: Run the script as python yt_analysis.py FirstDataDump SecondDataDump PlotType (1 = slice, 2 = projection, 3 = phase, 4 = radial)")
 print("       Run the script as python yt_analysis.py --h for more help")
-print("       Run the script as python yt_analysis.py --v for increased verbosity ")
+#print("       Run the script as python yt_analysis.py --v for increased verbosity ")
 #print("       The same as above but any value after sets the value of the Hubble constant, Omega Matter and Omega Vacuum, in that order")
 print(" ")
 
@@ -36,7 +36,7 @@ SolarMetalFractionByMass = 0.01295
 
 #Set sys argument to numberical argument 
 argvs = sys.argv
-#print(sys.argv[3])
+
 
 #Data set
 number_min = int(argvs[1])
@@ -54,6 +54,7 @@ elif int(sys.argv[3]) == 4:
     plot_type = 'Radial'
 else:
     print('Invalid')
+    exit
 
 
 #print(plot_switch)
@@ -77,6 +78,9 @@ else:
 
 #    return
 
+def AddSpeciesField(field_name, atomic_mass):
+    def _field_name(field, data): return data[str(field_name + "_density")] / ["Density"] / SolarMetalFractionByMass / atomic_mass
+    ds.add_field(("gas", str(field_name)), function=_field_name)
 
 work_dir = "./"
 for it_number in range(number_min, number_max+1):
@@ -88,9 +92,18 @@ for it_number in range(number_min, number_max+1):
     ds = yt.load(fn)
     all_data = ds.all_data()
     ds.print_stats()
-    print(ds.current_redshift)
+    print('The current redshift is ' + str(ds.current_redshift))
 
-
+    print('add field? (Y/N) ')
+    add_field = input('')
+    if add_field == 'Y' or add_field == 'y' or add_field == 'yes':
+        print("what is the species field? ")
+        NewSpecies = str(input(''))
+        Atomic_Mass = int(input("what is the species atomic mass? "))
+        def _NewSpecies(field, data): return data[str(NewSpecies + "_Density")] / data["Density"] / SolarMetalFractionByMass / Atomic_Mass
+        ds.add_field(("gas", str(NewSpecies)), function=_NewSpecies, sampling_type="cell", units="1")
+    elif add_field == 'N' or add_field == 'n' or len(add_field) == 0:
+        pass
 
     def _cell_size(field, data): return data["cell_volume"]**(1.0/3.0)
     ds.add_field(("gas", "cell_size"), function=_cell_size, sampling_type="cell", units="code_length")
@@ -130,7 +143,7 @@ for it_number in range(number_min, number_max+1):
     ds.add_field(("gas", "TotEnergy"), function=_TotEnergy, sampling_type="cell", units="erg")
 
     if plot_type == 'Slice':
-        print('input plot width in kpc ')
+        print('input plot width ')
         width = float(input('width = '))
         print('input axes unit (mpc, kpc, pc, au...) ')
         axes_unit = str(input('unit = '))
@@ -142,6 +155,8 @@ for it_number in range(number_min, number_max+1):
             centre_point = all_data.argmax("Temperature")
         elif centre_point == "metallicity":
             centre_point = all_data.argmax("Zmet")
+        elif len(centre_point) == 0:
+            centre_point = (0.5, 0.5, 0.5) 
         else:
             centre_point = eval(centre_point)
 
@@ -177,3 +192,91 @@ for it_number in range(number_min, number_max+1):
         plot.annotate_grids()
         plot.save("%s/Water_Abundance_%04d.png" % (work_dir, it_number))
 
+    elif plot_type == 'Proj':
+        print('input plot width ')
+        width = float(input('width = '))
+        print('input axes unit (mpc, kpc, pc, au...) ')
+        axes_unit = str(input('unit = '))
+        print('input centre as either as a field or as a coordinate ')
+        centre_point = input('input centre point ')
+        if centre_point == 'density':
+            centre_point = all_data.argmax("density")
+        elif centre_point == "Temperature":
+            centre_point = all_data.argmax("Temperature")
+        elif centre_point == "metallicity":
+            centre_point = all_data.argmax("Zmet")
+        elif len(centre_point) == 0:
+            centre_point = (0.5, 0.5, 0.5) 
+        else:
+            centre_point = eval(centre_point)
+
+        print(centre_point)
+        
+        print('input weight field (leave blank to default to density) ')
+        weight_field = str(input('weight field = '))
+        if len(weight_field) <= 0:
+            weight_field = "density"
+        else:
+            weight_field = weight_field
+
+        plot = yt.ProjectionPlot(ds, 'z', "Zmet", width = width, axes_unit=axes_unit, center=centre_point, weight_field=weight_field)
+        plot.annotate_grids()
+        plot.save("%s/Zmet_%04d.png" % (work_dir, it_number))
+
+        plot = yt.ProjectionPlot(ds, 'z', "Temperature", width = width, axes_unit=axes_unit, center=centre_point, weight_field=weight_field)
+        plot.set_log('Temperature', True)
+#        plot.set_zlabel(r'$10^{({\rm Temperature})}$')
+        plot.save("%s/Temperature_%04d.png" % (work_dir, it_number))
+
+        plot = yt.ProjectionPlot(ds, 'z', "Hydrogen_number_density", width = width, axes_unit=axes_unit, center=centre_point, weight_field=weight_field)
+        plot.set_log('Hydrogen_number_density', False)
+#        plot.set_zlabel(r'')
+        plot.save("%s/H number density_%04d.png" % (work_dir, it_number))
+
+        plot = yt.ProjectionPlot(ds, 'z', "y_H2O", width = width, axes_unit=axes_unit, center=centre_point, weight_field=weight_field)
+        plot.annotate_grids()
+        plot.save("%s/Water_Abundance_%04d.png" % (work_dir, it_number))
+
+    elif plot_type == 'Phase':
+        print('input plot width in kpc ')
+        width = int(input('width = '))
+        #print('input axes unit (mpc, kpc, pc, au...) ')
+        #axes_unit = str(input('unit = '))
+        print('input centre as either as a field or as a coordinate ')
+        centre_point = input('input centre point ')
+        if centre_point == 'density':
+            centre_point = all_data.argmax("density")
+        elif centre_point == "Temperature":
+            centre_point = all_data.argmax("Temperature")
+        elif centre_point == "metallicity":
+            centre_point = all_data.argmax("Zmet")
+        elif len(centre_point) == 0:
+            centre_point = (0.5, 0.5, 0.5)
+        else:
+            centre_point = eval(centre_point)
+
+        print(centre_point)
+        
+        # Create sphere
+        my_sphere = ds.sphere(centre_point, (width, 'kpc')) 
+
+        # Weight field
+        print('input weight field (leave blank to default to None) ')
+        weight_field = str(input('weight field = '))
+        if len(weight_field) <= 0:
+            weight_field = None
+        else:
+            weight_field = weight_field
+
+        # Create the phase plots themselves
+        plot = yt.PhasePlot(my_sphere, ("gas", "Hydrogen_number_density"),
+        ("Temperature"),
+        ("cell_mass"),
+        weight_field = weight_field,)
+        plot.save("%s/Hydrogen_Number_density_%04d.png" % (work_dir, it_number))
+
+
+
+        
+
+        
